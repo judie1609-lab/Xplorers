@@ -25,10 +25,19 @@ Only put public URLs in `NEXT_PUBLIC_` variables. Never put API keys, passwords,
 ```powershell
 npm run lint
 npm run build
-npm start
 ```
 
-The production build is a local validation step. No deployment configuration or public URL is part of this project.
+The production build uses Next.js static export and writes the deployable site
+to `out/`. This repository does not configure Render services or include hosted
+service URLs; see the deployment guide for the exact dashboard settings.
+
+For the production API URL, set `NEXT_PUBLIC_API_URL` to the backend's HTTPS
+origin before building the frontend. The backend must allow the frontend's exact
+origin through `CORS_ALLOWED_ORIGINS`. For a Render Static Site, also set
+`NEXT_PUBLIC_XPLORERS_EPHEMERAL_STORAGE=true` and
+`NEXT_PUBLIC_XPLORERS_LOW_MEMORY_MODE=true` before building. See the
+project-root [zero-cost Render deployment guide](../docs/render_deployment.md)
+for the service roots, commands, environment variables, and Free-tier limits.
 
 ## Main workspaces
 

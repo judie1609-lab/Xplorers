@@ -19,6 +19,11 @@ from .models import ArchiveProduct, Observation
 from .archive import ArchiveError, retrieve_fits_product, search_irsa_sia, validate_fits_product
 from .epoch import build_comparison_eligibility, compare_image_wcs, inspect_cached_product
 from .provenance import cached_product_provenance
+from .settings import (
+    archive_cache_path_from_environment,
+    cors_origins_from_environment,
+    low_memory_mode_from_environment,
+)
 
 
 # ==========================================
@@ -29,10 +34,12 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 STATIC_DIR = BACKEND_DIR / "static"
 IMAGES_DIR = STATIC_DIR / "images"
-ARCHIVE_PRODUCTS_DIR = STATIC_DIR / "archive_products"
+ARCHIVE_PRODUCTS_DIR = archive_cache_path_from_environment(BACKEND_DIR)
+LOW_MEMORY_MODE = low_memory_mode_from_environment()
 HASHED_FITS_NAME = re.compile(r"^[a-fA-F0-9]{64}\.fits$")
 
 IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+ARCHIVE_PRODUCTS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ==========================================
@@ -70,12 +77,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-    ],
+    allow_origins=cors_origins_from_environment(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -85,6 +87,12 @@ app.add_middleware(
 # ==========================================
 # STATIC SCIENTIFIC IMAGES
 # ==========================================
+
+app.mount(
+    "/static/archive_products",
+    StaticFiles(directory=str(ARCHIVE_PRODUCTS_DIR)),
+    name="archive-products",
+)
 
 app.mount(
     "/static",
@@ -151,6 +159,19 @@ def _release_from_collection(collection: str | None) -> str | None:
     if lowered.startswith("spherex_dr1"):
         return "DR1"
     return None
+
+
+def _guard_low_memory_analysis(feature: str) -> None:
+    """Fail closed for resource-heavy analysis when explicitly enabled on Free."""
+    if LOW_MEMORY_MODE:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                f"NOT EVALUATED: {feature} is disabled by XPLORERS_LOW_MEMORY_MODE. "
+                "This deployment is configured for Render Free's 512 MB RAM limit; "
+                "run this analysis on a suitably provisioned environment."
+            ),
+        )
 
 
 def _archive_provenance_for_filename(filename: str) -> dict:
@@ -907,6 +928,7 @@ def array_statistics(data):
 
 @app.get("/api/v1/analysis/fits/{image_name}")
 def analyze_fits_image(image_name: str):
+    _guard_low_memory_analysis("Full-image FITS summary")
 
     # Only allow FITS files from the scientific images folder.
     if Path(image_name).name != image_name:
@@ -1496,6 +1518,7 @@ def detect_fits_anomalies(
     This identifies unusual measured patterns; it does not classify astronomical
     source types or establish a physical cause.
     """
+    _guard_low_memory_analysis("FITS anomaly analysis")
     if Path(image_name).name != image_name:
         raise HTTPException(status_code=400, detail="Invalid image filename")
     if Path(image_name).suffix.lower() not in {".fits", ".fit"}:
@@ -1683,6 +1706,7 @@ def cluster_observation_profiles(
 
     These are exploratory metadata clusters, not astrophysical source classes.
     """
+    _guard_low_memory_analysis("Observation clustering")
     try:
         from sklearn.cluster import KMeans
         from sklearn.preprocessing import StandardScaler

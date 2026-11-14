@@ -4,7 +4,26 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, Dispatch, MouseEvent, SetStateAction } from "react";
 import targetCasesJson from "./target-cases.json";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+const EPHEMERAL_STORAGE_MODE = process.env.NEXT_PUBLIC_XPLORERS_EPHEMERAL_STORAGE === "true";
+const LOW_MEMORY_MODE = process.env.NEXT_PUBLIC_XPLORERS_LOW_MEMORY_MODE === "true";
+const CONFIGURED_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim();
+const API_URL_IS_HTTPS_ORIGIN = (() => {
+  if (!CONFIGURED_API_URL) return false;
+  try {
+    const parsed = new URL(CONFIGURED_API_URL);
+    return parsed.protocol === "https:" && parsed.origin === CONFIGURED_API_URL;
+  } catch {
+    return false;
+  }
+})();
+
+if (EPHEMERAL_STORAGE_MODE && !API_URL_IS_HTTPS_ORIGIN) {
+  throw new Error(
+    "Set NEXT_PUBLIC_API_URL to the backend HTTPS origin only, without a path or trailing slash, before building the Render Static Site.",
+  );
+}
+
+const API = CONFIGURED_API_URL || "http://127.0.0.1:8000";
 
 type CollectionStat = { name: string; rows: number };
 type BandStat = { name: string; rows: number };
@@ -1520,6 +1539,14 @@ function Home() {
 
   useEffect(() => {
     if (active !== "Scientific Analysis" || !activeFitsName) return;
+    if (LOW_MEMORY_MODE) {
+      setFitsAnalysis(null);
+      setFitsLoading(false);
+      setFitsError(
+        "NOT EVALUATED: Full-image FITS statistics are disabled in the configured 512 MB low-memory deployment.",
+      );
+      return;
+    }
     const controller = new AbortController();
 
     async function loadFitsAnalysis() {
@@ -1845,6 +1872,18 @@ function Home() {
         </header>
 
         <div className="content">
+          {EPHEMERAL_STORAGE_MODE && (
+            <div className="error-banner" role="status">
+              <strong>Render Free storage is temporary</strong>
+              <span>The catalog is re-imported from the public CSV when the backend starts. Downloaded FITS products and their local cache records can disappear after spin-down, restart, or redeploy. “Cached” means currently present on this running service; availability is not guaranteed.</span>
+            </div>
+          )}
+          {LOW_MEMORY_MODE && (
+            <div className="error-banner" role="status">
+              <strong>512 MB low-memory safeguards are active</strong>
+              <span>Full-image FITS summaries, anomaly analysis, and observation clustering are disabled and remain NOT EVALUATED. Pixel, region, archive, and WCS requests may still need temporary cached products and can be constrained by available memory.</span>
+            </div>
+          )}
           {active === "Overview" ? (
           <>
           <div className="welcome-row">
@@ -2499,8 +2538,8 @@ function Home() {
                       {[2,3,4,5,6,7,8].map((value)=><option key={value} value={value}>{value} clusters</option>)}
                     </select>
                   </label>
-                  <button className="primary-button" type="button" onClick={runObservationClustering} disabled={clusterLoading}>
-                    {clusterLoading ? "Analyzing observations…" : "Run clustering model"} <span>↗</span>
+                  <button className="primary-button" type="button" onClick={runObservationClustering} disabled={LOW_MEMORY_MODE || clusterLoading}>
+                    {LOW_MEMORY_MODE ? "Disabled on Free 512 MB" : clusterLoading ? "Analyzing observations…" : "Run clustering model"} {!LOW_MEMORY_MODE && <span>↗</span>}
                   </button>
                 </div>
                 <p className="page-note">The model uses up to 10,000 records and standardizes five numeric features: sin(RA), cos(RA), Dec, MJD start and log(1 + exposure seconds).</p>
@@ -2524,8 +2563,8 @@ function Home() {
                       {[0.01,0.02,0.03,0.05,0.08,0.1].map((value)=><option key={value} value={value}>{(value*100).toFixed(0)}%</option>)}
                     </select>
                   </label>
-                  <button className="primary-button" type="button" onClick={runFitsAnomalyDetection} disabled={anomalyLoading || availableFits.length === 0}>
-                    {anomalyLoading ? "Scanning image tiles…" : "Detect unusual regions"} <span>↗</span>
+                  <button className="primary-button" type="button" onClick={runFitsAnomalyDetection} disabled={LOW_MEMORY_MODE || anomalyLoading || availableFits.length === 0}>
+                    {LOW_MEMORY_MODE ? "Disabled on Free 512 MB" : anomalyLoading ? "Scanning image tiles…" : "Detect unusual regions"} {!LOW_MEMORY_MODE && <span>↗</span>}
                   </button>
                 </div>
                 <p className="page-note">The model ranks image tiles by how unusual their measured features are relative to the analyzed image. The anomaly score is not a probability and does not identify an astronomical object by itself.</p>

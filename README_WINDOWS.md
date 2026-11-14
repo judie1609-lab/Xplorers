@@ -44,18 +44,19 @@ npm run dev
 
 Open http://localhost:3000. The default frontend API address is `http://127.0.0.1:8000`. For another local API address, set `NEXT_PUBLIC_API_URL` in `frontend\.env.local` before starting the frontend. Do not put private credentials in any `NEXT_PUBLIC_` variable.
 
-## Initialize or rebuild the catalog from the CSV
-The root CSV is already beside this README. Run this before the API on a fresh clone, or whenever you intentionally need to rebuild the catalog:
+## Initialize or update the catalog from the CSV
+The root CSV is already beside this README. Run this before the API on a fresh clone, or when you want to add catalog records from the committed source:
 
 ```powershell
 .\import_data_windows.ps1
 ```
 
-The database is stored at `data\spectra.db`.
-
-CSV replacement is transactional: the existing catalog remains committed until
-the full replacement import succeeds. If parsing or inserting any row fails,
-the transaction rolls back and the previous catalog remains available.
+The database is stored at `data\spectra.db` by default; set `DATABASE_URL` to
+override that location. Import is additive and transactional. Existing
+observations are never deleted or updated, repeated imports skip rows already
+present by `obs_publisher_did`, and duplicate publisher IDs in one CSV are
+inserted once. If parsing or inserting a row fails, all inserts from that run
+roll back while the existing catalog remains available.
 
 ## Catalog search and IRSA archive products
 
@@ -120,6 +121,9 @@ portal configuration is included.
 ## Notes
 - This phase stores all 62 source CSV fields in `raw_metadata` and indexes commonly searched fields.
 - `obs_id` is not a unique key; the database uses its own integer primary key.
+- Catalog initialization deduplicates by the public archive's stable
+  `obs_publisher_did` identifier because one `obs_id` can legitimately have
+  multiple product rows.
 - `access_url` values in the local catalog can be DataLink endpoints. Retrieval resolves these through DataLink and never downloads the VOTable URL as if it were a FITS file.
 - SQLite is suitable for this single-user local MVP and 28,953-row catalog. The current cone search is correct on the sphere but uses SQL trigonometric expressions; a spatial database/index would be appropriate for much larger catalogs or concurrent workloads.
 - Motion, light curves, empirical image registration, spectra, reference-star controls, change atlas, and scientific change detection require compatible verified products, authoritative calibration metadata, and independent validation. Their absence is displayed as unavailable or `NOT EVALUATED`, never as a pass or discovery.
@@ -132,3 +136,4 @@ portal configuration is included.
 - [Judging demonstration guide](docs/judging_demo_guide.md)
 - [Requirement traceability](docs/requirement_traceability.md)
 - [Real archive validation and provenance](docs/real_archive_validation.md)
+- [Render deployment configuration](docs/render_deployment.md)
