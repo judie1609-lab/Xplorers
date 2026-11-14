@@ -1,0 +1,66 @@
+# Secrets and local environment configuration
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.credentials
+credentials/
+secrets/
+
+# Python environments and generated files
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# JavaScript dependencies and build output
+**/node_modules/
+**/.next/
+**/out/
+**/build/
+**/dist/
+**/coverage/
+*.tsbuildinfo
+
+# Local databases, journals, and catalog copies
+/data/
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+*.db-journal
+
+# Large local FITS products and temporary products
+*.fits
+*.fit
+*.fts
+*.fits.fz
+/backend/static/archive_products/
+
+# Local backups, credentials/config, and temporary output
+.backups/
+backups/
+.codex/
+.cache/
+tmp/
+temp/
+*.tmp
+*.temp
+*.log
+*.bak
+*.backup
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

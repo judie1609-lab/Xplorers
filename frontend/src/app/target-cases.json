@@ -1,0 +1,86 @@
+[
+  {
+    "id": "barnard",
+    "name": "Barnard's Star",
+    "catalogCoordinate": "17:57:48.4984700685, +04:41:36.113879676 ICRS",
+    "catalogEpoch": "J2000.0",
+    "searchCenter": "269.446491905°, +4.765326036° · propagated to 2025.0",
+    "raDeg": "269.446491905",
+    "decDeg": "4.765326036",
+    "referenceUrl": "https://simbad.cds.unistra.fr/simbad/sim-id?Ident=Barnard%27s+Star",
+    "coverageState": "QR3 and DR1 metadata returned capped samples",
+    "coverageSummary": "QR3 wide and DR1 wide each returned 20 rows (capped). Two QR3 D6 FITS products are cached; the target coordinate is inside only one. Their 128.93-second separation is a geometry test, not a useful long-baseline motion comparison.",
+    "cachedProducts": [
+      "2026W33_2A_0594_3 · D6 · 2026-08-16 · target outside image",
+      "2026W33_2A_0594_4 · D6 · 2026-08-16 · target coordinate inside image"
+    ],
+    "pairState": "WCS geometry tested; scientific eligibility REJECT",
+    "targetCoordinateInProduct": "One of the two cached products contains the propagated target position; neither product establishes a source detection."
+  },
+  {
+    "id": "wise0855",
+    "name": "WISE 0855",
+    "catalogCoordinate": "08:55:16.53798, −07:14:49.3728 ICRS",
+    "catalogEpoch": "J2000.0",
+    "searchCenter": "133.762039367°, −7.242373000° · propagated to 2025.0",
+    "raDeg": "133.762039367",
+    "decDeg": "-7.242373000",
+    "referenceUrl": "https://simbad.cds.unistra.fr/simbad/sim-id?Ident=WISEA+J085510.74-071442.5",
+    "coverageState": "UNRESOLVED · timeouts are not zero coverage",
+    "coverageSummary": "One prior QR3 wide query returned zero rows for its exact cone; other QR3/DR1 alternatives timed out. There is no locally cached FITS product. Coverage remains unresolved.",
+    "cachedProducts": [],
+    "pairState": "NOT EVALUATED · no verified local product pair",
+    "targetCoordinateInProduct": "No target-position FITS coverage has been validated locally."
+  },
+  {
+    "id": "epsilon-indi-b",
+    "name": "Epsilon Indi B",
+    "catalogCoordinate": "22:04:10.5951812451, −56:46:58.239102418 ICRS",
+    "catalogEpoch": "J2000.0",
+    "searchCenter": "331.094624727°, −56.799974973° · propagated to 2025.0",
+    "raDeg": "331.094624727",
+    "decDeg": "-56.799974973",
+    "referenceUrl": "https://simbad.u-strasbg.fr/simbad/sim-id?Ident=%2A+eps+Ind+B",
+    "coverageState": "QR3 wide capped sample; DR1 timed out",
+    "coverageSummary": "A QR3 wide query returned 20 rows (capped). One verified QR3 D3 FITS product is cached and its propagated target coordinate falls inside the image. No compatible separated pair is confirmed.",
+    "cachedProducts": [
+      "2026W39_1A_0276_2 · D3 · 2026-09-22 · target coordinate inside image"
+    ],
+    "pairState": "NOT EVALUATED · no compatible pair confirmed",
+    "targetCoordinateInProduct": "The propagated target coordinate falls within the cached image bounds; this is not a detection."
+  },
+  {
+    "id": "rw-aur",
+    "name": "RW Aurigae",
+    "catalogCoordinate": "05:07:49.5662483, +30:24:05.177426 ICRS",
+    "catalogEpoch": "J2000.0",
+    "searchCenter": "76.956584247°, +30.401296993° · propagated to 2025.0",
+    "raDeg": "76.956584247",
+    "decDeg": "30.401296993",
+    "referenceUrl": "https://simbad.cds.unistra.fr/simbad/sim-id?Ident=RW+Aur",
+    "coverageState": "QR3 wide capped sample; DR1 timed out",
+    "coverageSummary": "A QR3 wide query returned 20 rows (capped). One verified QR3 D1 FITS product is cached and its propagated target coordinate falls inside the image. No compatible separated pair is confirmed.",
+    "cachedProducts": [
+      "2026W36_1A_0476_1 · D1 · 2026-09-02 · target coordinate inside image"
+    ],
+    "pairState": "NOT EVALUATED · no compatible pair confirmed",
+    "targetCoordinateInProduct": "The propagated target coordinate falls within the cached image bounds; this is not a detection."
+  },
+  {
+    "id": "r-dra",
+    "name": "R Draconis",
+    "catalogCoordinate": "16:32:40.2265999080, +66:45:17.925901992 ICRS",
+    "catalogEpoch": "J2000.0",
+    "searchCenter": "248.167247602°, +66.755022119° · propagated to 2025.0",
+    "raDeg": "248.167247602",
+    "decDeg": "66.755022119",
+    "referenceUrl": "https://simbad.cds.unistra.fr/simbad/sim-id?Ident=%40376084&Name=V%2A+R+Dra&submit=submit",
+    "coverageState": "QR3 wide capped sample; DR1 timed out",
+    "coverageSummary": "A QR3 wide query returned 20 rows (capped). One verified QR3 D3 FITS product is cached and its propagated target coordinate falls inside the image. No compatible separated pair is confirmed.",
+    "cachedProducts": [
+      "2026W20_2A_0294_4 · D3 · 2026-05-16 · target coordinate inside image"
+    ],
+    "pairState": "NOT EVALUATED · no compatible pair confirmed",
+    "targetCoordinateInProduct": "The propagated target coordinate falls within the cached image bounds; this is not a detection."
+  }
+]
