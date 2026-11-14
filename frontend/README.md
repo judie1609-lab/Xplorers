@@ -1,6 +1,6 @@
 # XPLORERS frontend
 
-The frontend is a Next.js 16.4.5 App Router application using React 19.3 and TypeScript. It connects to the local FastAPI service.
+The frontend is a Next.js 16.4.5 App Router application using React 19.3 and TypeScript. It connects to the local FastAPI service in development and to Enzonic through Vercel same-origin rewrites in production.
 
 ## Run locally
 
@@ -27,17 +27,34 @@ npm run lint
 npm run build
 ```
 
-The production build uses Next.js static export and writes the deployable site
-to `out/`. This repository does not configure Render services or include hosted
-service URLs; see the deployment guide for the exact dashboard settings.
+## Vercel with Enzonic FastAPI
 
-For the production API URL, set `NEXT_PUBLIC_API_URL` to the backend's HTTPS
-origin before building the frontend. The backend must allow the frontend's exact
-origin through `CORS_ALLOWED_ORIGINS`. For a Render Static Site, also set
-`NEXT_PUBLIC_XPLORERS_EPHEMERAL_STORAGE=true` and
-`NEXT_PUBLIC_XPLORERS_LOW_MEMORY_MODE=true` before building. See the
-project-root [zero-cost Render deployment guide](../docs/render_deployment.md)
-for the service roots, commands, environment variables, and Free-tier limits.
+Vercel production builds use the Next.js server runtime. Browser requests to
+`/api/*`, `/health`, and `/static/*` remain same-origin and are proxied by
+`next.config.ts` to the Enzonic backend. This prevents browser mixed-content
+requests even though the current Enzonic backend origin is HTTP.
+
+Set this server-only Vercel environment variable for Production and Preview:
+
+```text
+ENZONIC_BACKEND_ORIGIN=http://fr-one.enzonic.com:26111
+```
+
+Do not set `NEXT_PUBLIC_API_URL` for this Vercel deployment. The production
+browser bundle then uses the same-origin proxy. Set
+`NEXT_PUBLIC_XPLORERS_LOW_MEMORY_MODE=true` to mirror Enzonic's 512 MB
+safeguards in the UI. `CORS_ALLOWED_ORIGINS` is not required for proxy traffic,
+but the Enzonic backend may keep the Vercel production origin in its allowlist
+for any direct browser use.
+
+For a static host, set `NEXT_STATIC_EXPORT=true`; this produces `out/`, but
+static export cannot serve Next.js rewrites. In that mode set
+`NEXT_PUBLIC_API_URL` to an HTTPS backend origin or supply an equivalent proxy
+at the hosting layer.
+
+For local or static-host API overrides, set `NEXT_PUBLIC_API_URL` to the API
+origin only, without a trailing slash. Never put credentials in a public
+environment variable.
 
 ## Main workspaces
 

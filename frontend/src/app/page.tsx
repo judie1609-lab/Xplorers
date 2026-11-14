@@ -7,6 +7,7 @@ import targetCasesJson from "./target-cases.json";
 const EPHEMERAL_STORAGE_MODE = process.env.NEXT_PUBLIC_XPLORERS_EPHEMERAL_STORAGE === "true";
 const LOW_MEMORY_MODE = process.env.NEXT_PUBLIC_XPLORERS_LOW_MEMORY_MODE === "true";
 const CONFIGURED_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim();
+const USE_SAME_ORIGIN_API = !CONFIGURED_API_URL && process.env.NODE_ENV === "production";
 const API_URL_IS_HTTPS_ORIGIN = (() => {
   if (!CONFIGURED_API_URL) return false;
   try {
@@ -17,13 +18,15 @@ const API_URL_IS_HTTPS_ORIGIN = (() => {
   }
 })();
 
-if (EPHEMERAL_STORAGE_MODE && !API_URL_IS_HTTPS_ORIGIN) {
+if (EPHEMERAL_STORAGE_MODE && !API_URL_IS_HTTPS_ORIGIN && !USE_SAME_ORIGIN_API) {
   throw new Error(
-    "Set NEXT_PUBLIC_API_URL to the backend HTTPS origin only, without a path or trailing slash, before building the Render Static Site.",
+    "Set NEXT_PUBLIC_API_URL to an HTTPS API origin, or build with the same-origin proxy enabled for Vercel.",
   );
 }
 
-const API = CONFIGURED_API_URL || "http://127.0.0.1:8000";
+// Vercel production requests stay on the frontend origin and are forwarded by
+// Next.js rewrites. Development keeps the existing local FastAPI default.
+const API = CONFIGURED_API_URL || (USE_SAME_ORIGIN_API ? "" : "http://127.0.0.1:8000");
 
 type CollectionStat = { name: string; rows: number };
 type BandStat = { name: string; rows: number };
